@@ -1,3 +1,4 @@
+use std::fmt::format;
 use crate::error::Error;
 
 const ELEM_SEP: char = '.';
@@ -22,6 +23,7 @@ impl Instruction {
             .iter()
             .map(|x| self.encode_arg(x.to_string()))
             .collect::<Vec<String>>();
+        // ARG_SEP = ,
         args.join(ARG_SEP.to_string().as_str())
     }
 
@@ -31,10 +33,10 @@ impl Instruction {
 
     pub fn load(instruction: String) -> Result<Self, Error> {
         if !instruction.ends_with(INST_TERM) {
-            return Err(Error::InvalidInstruction);
+            return Err(Error::InvalidInstruction("Instruction termination not found.".to_string()));
         }
         match Instruction::decode(instruction) {
-            Ok(args) => Ok(Self { opcode: "".to_string(), args: vec![] }),
+            Ok(args) => Ok(Self { opcode: args[0].to_string(), args: vec![args[1..]].concat() }),
             Err(err) => Err(err),
         }
     }
@@ -44,12 +46,13 @@ impl Instruction {
         let mut args: Vec<String> = vec![];
 
         if !instruction.ends_with(INST_TERM) {
-            return Err(Error::InvalidInstruction);
+            return Err(Error::InvalidInstruction("Instruction termination not found.".to_string()));
         }
 
         let elems: Vec<&str> = instruction.splitn(2, ELEM_SEP).collect();
 
         let arg_size = elems[0].parse::<i32>().unwrap();
+
         let arg_str = &elems[1][..arg_size as usize];
         let mut remaining = &elems[1][arg_size as usize..];
         args.push(arg_str.to_string());
@@ -58,7 +61,8 @@ impl Instruction {
         } else if remaining.to_string() == INST_TERM.to_string() {
             return Ok(args);
         } else {
-            return Err(Error::InvalidInstruction);
+            return Err(Error::InvalidInstruction(
+                format!("Instruction arg {0} has invalid length.", arg_str)));
         }
         match Instruction::decode(remaining.to_string()) {
             Ok(next_args) => args = [args, next_args].concat(),
@@ -67,6 +71,14 @@ impl Instruction {
         return Ok(args);
     }
 }
+
+
+impl From<String> for Instruction {
+    fn from(s: String) -> Self {
+        Instruction::load(s).unwrap()
+    }
+}
+
 
 #[cfg(test)]
 mod tests {
@@ -89,6 +101,4 @@ mod tests {
         print!("{}", result);
     }
 }
-
-
 
