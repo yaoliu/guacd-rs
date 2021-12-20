@@ -1,6 +1,6 @@
-use std::fmt::{format, Formatter, write};
-use log::error;
-use crate::error::Error;
+use std::fmt::{Formatter, Display};
+use std::fmt;
+use crate::GlobalError;
 
 const ELEM_SEP: char = '.';
 const INST_TERM: char = ';';
@@ -32,9 +32,9 @@ impl Instruction {
         vec![arg.len().to_string(), arg].join(ELEM_SEP.to_string().as_str())
     }
 
-    pub fn load(instruction: String) -> Result<Self, Error> {
+    pub fn load(instruction: String) -> Result<Self, GlobalError> {
         if !instruction.ends_with(INST_TERM) {
-            return Err(Error::InvalidInstruction("Instruction termination not found.".to_string()));
+            return Err(GlobalError::InvalidInstruction("Instruction termination not found.".to_string()));
         }
         match Instruction::decode(instruction) {
             Ok(args) => Ok(Self { opcode: args[0].to_string(), args: args[1..].to_owned() }),
@@ -43,11 +43,11 @@ impl Instruction {
     }
 
 
-    pub fn decode(instruction: String) -> Result<Vec<String>, Error> {
+    pub fn decode(instruction: String) -> Result<Vec<String>, GlobalError> {
         let mut args: Vec<String> = vec![];
 
         if !instruction.ends_with(INST_TERM) {
-            return Err(Error::InvalidInstruction("Instruction termination not found.".to_string()));
+            return Err(GlobalError::InvalidInstruction("Instruction termination not found.".to_string()));
         }
 
         let elems: Vec<&str> = instruction.splitn(2, ELEM_SEP).collect();
@@ -62,7 +62,7 @@ impl Instruction {
         } else if remaining.to_string() == INST_TERM.to_string() {
             return Ok(args);
         } else {
-            return Err(Error::InvalidInstruction(
+            return Err(GlobalError::InvalidInstruction(
                 format!("Instruction arg {0} has invalid length.", arg_str)));
         }
         match Instruction::decode(remaining.to_string()) {
@@ -80,7 +80,7 @@ impl From<String> for Instruction {
     }
 }
 
-impl fmt::Display for Instruction {
+impl Display for Instruction {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         write!(f, "{} {:?}", self.opcode, self.args)
     }
@@ -89,7 +89,6 @@ impl fmt::Display for Instruction {
 
 #[cfg(test)]
 mod tests {
-    use crate::error::Error;
     use crate::instruction::Instruction;
 
     #[test]
@@ -105,13 +104,13 @@ mod tests {
     fn test_encode() {
         let instruction = Instruction::new(String::from("size"), vec![String::from("1024")]);
         let result = instruction.encode();
-        print!("{}", result);
+        assert_eq!(result, "4.size,4.1024")
     }
 
     #[test]
     fn print_instruction() {
         let instruction = Instruction::new(String::from("size"), vec![String::from("1024")]);
-        print!("{}", instruction);
+        println!("{}", instruction);
     }
 }
 

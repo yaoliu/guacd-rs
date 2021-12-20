@@ -1,5 +1,8 @@
 mod instruction;
 mod error;
+mod client;
+
+pub use error::GlobalError;
 
 #[cfg(test)]
 mod tests {
