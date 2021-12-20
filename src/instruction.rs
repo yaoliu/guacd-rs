@@ -1,4 +1,5 @@
-use std::fmt::format;
+use std::fmt::{format, Formatter, write};
+use log::error;
 use crate::error::Error;
 
 const ELEM_SEP: char = '.';
@@ -36,7 +37,7 @@ impl Instruction {
             return Err(Error::InvalidInstruction("Instruction termination not found.".to_string()));
         }
         match Instruction::decode(instruction) {
-            Ok(args) => Ok(Self { opcode: args[0].to_string(), args: vec![args[1..]].concat() }),
+            Ok(args) => Ok(Self { opcode: args[0].to_string(), args: args[1..].to_owned() }),
             Err(err) => Err(err),
         }
     }
@@ -66,7 +67,7 @@ impl Instruction {
         }
         match Instruction::decode(remaining.to_string()) {
             Ok(next_args) => args = [args, next_args].concat(),
-            Err(err) => {}
+            Err(_err) => {}
         }
         return Ok(args);
     }
@@ -76,6 +77,12 @@ impl Instruction {
 impl From<String> for Instruction {
     fn from(s: String) -> Self {
         Instruction::load(s).unwrap()
+    }
+}
+
+impl fmt::Display for Instruction {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, "{} {:?}", self.opcode, self.args)
     }
 }
 
@@ -90,7 +97,7 @@ mod tests {
         let instruction = String::from("4.size,4.1024;");
         match Instruction::decode(instruction) {
             Ok(result) => { for i in result { println!("result:{}", i) } }
-            Err(err) => { println!("1") }
+            Err(_) => {}
         }
     }
 
@@ -99,6 +106,12 @@ mod tests {
         let instruction = Instruction::new(String::from("size"), vec![String::from("1024")]);
         let result = instruction.encode();
         print!("{}", result);
+    }
+
+    #[test]
+    fn print_instruction() {
+        let instruction = Instruction::new(String::from("size"), vec![String::from("1024")]);
+        print!("{}", instruction);
     }
 }
 
