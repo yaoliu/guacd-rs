@@ -2,6 +2,7 @@ use std::fmt::{Formatter, Display, format};
 use std::fmt;
 use crate::GlobalError;
 
+
 const ELEM_SEP: char = '.';
 const INST_TERM: char = ';';
 const ARG_SEP: char = ',';
@@ -110,14 +111,14 @@ mod tests {
     fn test_encode() {
         let instruction = Instruction::new(String::from("size"), vec![String::from("1024")]);
         let result = instruction.encode();
-        assert_eq!(result, "4.size,4.1024")
+        assert_eq!(result, "4.size,4.1024;")
     }
 
     #[test]
     fn test_encode_select() {
         let instruction = Instruction::new(String::from("select"), vec![String::from("rdp")]);
         let result = instruction.encode();
-        println!("{}", result);
+        assert_eq!(result, "6.select,3.rdp;")
     }
 
     #[test]
