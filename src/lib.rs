@@ -3,6 +3,8 @@ mod error;
 mod client;
 
 pub use error::GlobalError;
+pub use instruction::Instruction;
+pub use client::GuacamoleClient;
 
 #[cfg(test)]
 mod tests {
