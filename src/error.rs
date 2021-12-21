@@ -6,4 +6,6 @@ pub enum GlobalError {
     InvalidInstruction(String),
     #[error("Guacamole Protocol Error. {0}")]
     GuacamoleError(String),
+    #[error("{0}")]
+    SocketConnect(String),
 }

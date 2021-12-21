@@ -1,4 +1,4 @@
-use std::fmt::{Formatter, Display};
+use std::fmt::{Formatter, Display, format};
 use std::fmt;
 use crate::GlobalError;
 
@@ -25,7 +25,8 @@ impl Instruction {
             .map(|x| self.encode_arg(x.to_string()))
             .collect::<Vec<String>>();
         // ARG_SEP = ,
-        args.join(ARG_SEP.to_string().as_str())
+        let elems = args.join(ARG_SEP.to_string().as_str());
+        format!("{}{}", elems, INST_TERM)
     }
 
     pub fn encode_arg(&self, arg: String) -> String {
@@ -52,10 +53,15 @@ impl Instruction {
 
         let elems: Vec<&str> = instruction.splitn(2, ELEM_SEP).collect();
 
-        let arg_size = elems[0].parse::<i32>().unwrap();
+        let mut arg_size = 0;
+        match elems[0].parse::<usize>() {
+            Ok(s) => arg_size = s,
+            Err(err) => return Err(GlobalError::InvalidInstruction("Invalid arg length. Possibly due to missing element separator".to_string())),
+        };
+        let arg_str = &elems[1][..arg_size];
 
-        let arg_str = &elems[1][..arg_size as usize];
-        let mut remaining = &elems[1][arg_size as usize..];
+        let mut remaining = &elems[1][arg_size..];
+
         args.push(arg_str.to_string());
         if remaining.starts_with(ARG_SEP) {
             remaining = &remaining[1..];
@@ -105,6 +111,13 @@ mod tests {
         let instruction = Instruction::new(String::from("size"), vec![String::from("1024")]);
         let result = instruction.encode();
         assert_eq!(result, "4.size,4.1024")
+    }
+
+    #[test]
+    fn test_encode_select() {
+        let instruction = Instruction::new(String::from("select"), vec![String::from("rdp")]);
+        let result = instruction.encode();
+        println!("{}", result);
     }
 
     #[test]
