@@ -1,4 +1,4 @@
-use std::fmt::{Formatter, Display, format};
+use std::fmt::{Formatter, Display};
 use std::fmt;
 use crate::GlobalError;
 
