@@ -7,5 +7,5 @@ pub enum GlobalError {
     #[error("Guacamole Protocol Error. {0}")]
     GuacamoleError(String),
     #[error("{0}")]
-    SocketConnect(String),
+    SocketError(String),
 }

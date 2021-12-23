@@ -35,6 +35,9 @@ impl Instruction {
     }
 
     pub fn load(instruction: String) -> Result<Self, GlobalError> {
+        if instruction.is_empty() {
+            return Err(GlobalError::InvalidInstruction("String is empty.".to_string()));
+        }
         if !instruction.ends_with(INST_TERM) {
             return Err(GlobalError::InvalidInstruction("Instruction termination not found.".to_string()));
         }
@@ -56,8 +59,8 @@ impl Instruction {
 
         let mut arg_size = 0;
         match elems[0].parse::<usize>() {
-            Ok(s) => arg_size = s,
-            Err(err) => return Err(GlobalError::InvalidInstruction("Invalid arg length. Possibly due to missing element separator".to_string())),
+            Ok(s) => arg_size,
+            Err(_err) => return Err(GlobalError::InvalidInstruction("Invalid arg length. Possibly due to missing element separator".to_string())),
         };
         let arg_str = &elems[1][..arg_size];
 

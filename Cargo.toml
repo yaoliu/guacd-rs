@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 thiserror = "1" # 错误定义和处理
 log = "0.4"
+env_logger = "0.8.4"
