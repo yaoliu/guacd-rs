@@ -8,4 +8,6 @@ pub enum GlobalError {
     GuacamoleError(String),
     #[error("{0}")]
     SocketError(String),
+    #[error("{0}")]
+    ReceiveError(String),
 }

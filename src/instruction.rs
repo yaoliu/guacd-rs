@@ -1,5 +1,7 @@
 use std::fmt::{Formatter, Display};
 use std::fmt;
+use std::str::FromStr;
+use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use crate::GlobalError;
 
 
@@ -20,9 +22,9 @@ impl Instruction {
         }
     }
     pub fn encode(&self) -> String {
-        let instruction = vec![vec![self.opcode.clone()], self.args.clone()].concat();
+        let instruction = vec![&vec![&self.opcode], &self.args].concat();
         let args = instruction
-            .iter()
+            .into_par_iter()
             .map(|x| self.encode_arg(x.to_string()))
             .collect::<Vec<String>>();
         // ARG_SEP = ,
@@ -89,6 +91,18 @@ impl From<String> for Instruction {
         Instruction::load(s).unwrap()
     }
 }
+
+impl FromStr for Instruction {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match Instruction::load(s.to_string()) {
+            Ok(i) => Ok(i),
+            Err(e) => Err(""),
+        }
+    }
+}
+
 
 impl Display for Instruction {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
