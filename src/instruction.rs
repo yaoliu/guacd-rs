@@ -4,6 +4,7 @@ use std::str::FromStr;
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use crate::GlobalError;
 
+#1
 
 const ELEM_SEP: char = '.';
 const INST_TERM: char = ';';
