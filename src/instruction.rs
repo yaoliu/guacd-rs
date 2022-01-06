@@ -4,7 +4,6 @@ use std::str::FromStr;
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use crate::GlobalError;
 
-#1
 
 const ELEM_SEP: char = '.';
 const INST_TERM: char = ';';
@@ -23,12 +22,11 @@ impl Instruction {
         }
     }
     pub fn encode(&self) -> String {
-        let instruction = vec![&vec![&self.opcode], &self.args].concat();
+        let instruction = vec![vec![self.opcode.clone()], self.args.clone()].concat();
         let args = instruction
             .into_par_iter()
             .map(|x| self.encode_arg(x.to_string()))
             .collect::<Vec<String>>();
-        // ARG_SEP = ,
         let elems = args.join(ARG_SEP.to_string().as_str());
         format!("{}{}", elems, INST_TERM)
     }
@@ -94,12 +92,12 @@ impl From<String> for Instruction {
 }
 
 impl FromStr for Instruction {
-    type Err = ();
+    type Err = GlobalError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match Instruction::load(s.to_string()) {
             Ok(i) => Ok(i),
-            Err(e) => Err(""),
+            Err(e) => Err(e),
         }
     }
 }
