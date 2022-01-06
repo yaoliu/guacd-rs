@@ -58,9 +58,9 @@ impl Instruction {
 
         let elems: Vec<&str> = instruction.splitn(2, ELEM_SEP).collect();
 
-        let mut arg_size = 0;
+        let mut arg_size;
         match elems[0].parse::<usize>() {
-            Ok(s) => arg_size,
+            Ok(s) => arg_size = s,
             Err(_err) => return Err(GlobalError::InvalidInstruction("Invalid arg length. Possibly due to missing element separator".to_string())),
         };
         let arg_str = &elems[1][..arg_size];
